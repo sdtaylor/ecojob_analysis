@@ -33,6 +33,8 @@ def get_message_links(url):
 
 #Get the contents of a single mesage
 def get_message_content(url):
+    print(url)
+    print('')
     soup=BeautifulSoup(urllib.urlopen(url), 'lxml')
     message={}
     message['subject']=''
@@ -56,15 +58,21 @@ def get_message_content(url):
 
 base_url='https://listserv.umd.edu/'
 datafile='ecolog_archive.csv'
-add_delay=False
+add_delay=True
 
 all_messages=[]
-for weekly_archive_link in get_week_links(base_url+'archives/ecolog-l.html')[1:4]:
+error_log=0
+for weekly_archive_link in get_week_links(base_url+'archives/ecolog-l.html'):
     for message_link in get_message_links(base_url+weekly_archive_link):
-        all_messages.append(get_message_content(base_url+message_link))
+        try:
+            all_messages.append(get_message_content(base_url+message_link))
+        except:
+            error_log+=1
+
         #Try not to overload the webserver
         if add_delay:
             sleep(random.randint(1,3)+random.random())
 
 all_messages=pd.DataFrame(all_messages)
 all_messages.to_csv(datafile, index=False)
+print('Errors: '+str(error_log))
