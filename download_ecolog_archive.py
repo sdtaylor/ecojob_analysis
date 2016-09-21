@@ -51,7 +51,7 @@ def get_message_content(url):
 
     #Pull out email message body. Not identified the same way as
     #subject and date.
-    message['body']=soup.find('pre').p.string
+    message['body']=soup.find('pre').p.text
 
     return(message)
 
