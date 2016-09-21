@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import random
 from time import sleep
+import sqlalchemy
 
 
 #Get links for all the week links in main ecolog archive page
@@ -54,25 +55,47 @@ def get_message_content(url):
 
     return(message)
 
+#Storing data and writing it to a DB every now
+#and then to not fill up memory
+class data_store:
+    def __init__(self, sql_file, chunk_size=3):
+        self.db_engine=sqlalchemy.create_engine(sql_file)
+        self.message_store=[]
+        self.chunk_size=chunk_size
+
+    def write_db(self):
+        df=pd.DataFrame(self.message_store)
+        df.to_sql('ecolog', self.db_engine, if_exists='append', index=False)
+        df=[]
+        self.message_store=[]
+
+    def add_entry(self, new_entry):
+        self.message_store.append(new_entry)
+        #print(len(self.message_store))
+        #print(new_entry)
+        if len(self.message_store) >= self.chunk_size:
+            self.write_db()
+
+
 ###############################################
+#TODO: fix memory filling up every few years of data. 
 
 base_url='https://listserv.umd.edu/'
-datafile='ecolog_archive.csv'
+datafile='sqlite:///ecolog_archive.sqlite'
 add_delay=True
 
-all_messages=[]
+all_messages=data_store(datafile)
 error_log=0
 for weekly_archive_link in get_week_links(base_url+'archives/ecolog-l.html'):
     for message_link in get_message_links(base_url+weekly_archive_link):
         try:
-            all_messages.append(get_message_content(base_url+message_link))
+            all_messages.add_entry(get_message_content(base_url+message_link))
         except:
             error_log+=1
 
         #Try not to overload the webserver
         if add_delay:
-            sleep(random.randint(1,3)+random.random())
+            sleep(1+random.random())
 
-all_messages=pd.DataFrame(all_messages)
-all_messages.to_csv(datafile, index=False)
+all_messages.write_db()
 print('Errors: '+str(error_log))
