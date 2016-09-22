@@ -28,14 +28,21 @@ def compile_single_page(page_info):
     page_entries=[]
     page_short_links=[]
     for table_row in soup.find_all('tr'):
-        if table_row.a:
+        if table_row.a and table_row.a.has_attr('href'):
             row_link=table_row.a['href']
             if row_link[0]=='#' and row_link not in page_short_links:
+                columns=table_row.find_all('td')
+
+                #Skip malformed columns
+                if len(columns) != 4:
+                    print('malformed column, skipping row on page: '+ page_info['url'])
+                    break
+
                 this_entry={}
-                this_entry['location']=table_row.find_all('td')[location_position].string
-                this_entry['title']=table_row.find_all('td')[title_position].string
-                this_entry['close_date']=table_row.find_all('td')[2].string
-                this_entry['post_date']=table_row.find_all('td')[3].string
+                this_entry['location']=columns[location_position].text
+                this_entry['title']=columns[title_position].text
+                this_entry['close_date']=columns[2].string
+                this_entry['post_date']=columns[3].string
                 this_entry['short_link']=row_link
                 this_entry['position_type']=page_info['position_type']
                 page_entries.append(this_entry)
@@ -70,8 +77,12 @@ for this_type in position_types:
 ##########################################################3
 
 all_entries=[]
-for this_page in all_pages[3:20]:
-    all_entries.extend(compile_single_page(this_page))
+for this_page in all_pages:
+    print(this_page)
+    page_entries=compile_single_page(this_page)
+    #None gets returned if there was a 404 error
+    if page_entries:
+        all_entries.extend(page_entries)
 
 all_entries=pd.DataFrame(all_entries)
 all_entries.to_csv('duke_esa_archive.csv',index=False)
