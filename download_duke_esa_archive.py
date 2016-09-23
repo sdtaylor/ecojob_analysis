@@ -42,7 +42,7 @@ def compile_single_page(page_info):
                 this_entry['title']=columns[title_position].text
                 this_entry['close_date']=columns[2].string
                 this_entry['post_date']=columns[3].string
-                this_entry['short_link']=row_link
+                this_entry['toc_short_link']=row_link
                 this_entry['position_type']=page_info['position_type']
                 page_entries.append(this_entry)
 
@@ -50,8 +50,24 @@ def compile_single_page(page_info):
                 page_short_links.append(row_link)
 
     #TODO: Go thru them all again, finding the main text and collecting that.
-    for this_entry in page_entries:
-        pass
+    #Collect the main text of the ads. 
+    #Get all a and p tags. When an a tag has an id value in the short link list,
+    #the next entry should be the main text for that short link.
+    #Because of the way it's formated the *next* short link in the list is inside
+    #the main body text, so remove that (it's always the last link).
+    #A little wonky, but it works. 
+    a_p_tags=soup.find_all(['a','p'])
+    for i,entry in enumerate(a_p_tags):
+        if entry.has_attr('id') and '#'+entry['id'] in page_short_links:
+            full_text=a_p_tags[i+1]
+            full_text.find_all('a')[-1].extract()
+
+            short_link='#'+entry['id']
+            entry_index=page_short_links.index(short_link)
+
+            page_entries[entry_index]['full_text']=full_text.text
+            page_entries[entry_index]['text_short_link']=short_link
+
 
     return(page_entries)
 
