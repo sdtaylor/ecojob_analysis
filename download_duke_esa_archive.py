@@ -22,9 +22,8 @@ def compile_single_page(page_info):
         title_position=1
         location_position=0
 
-    #Go tru table of contents and identify actual positions in table rows
+    #Go thru table of contents and identify actual positions in table rows
     #by having a link that starts with # (the link to the full position farther down).
-    #Post date, and link to main text
     page_entries=[]
     page_short_links=[]
     for table_row in soup.find_all('tr'):
@@ -47,10 +46,10 @@ def compile_single_page(page_info):
                 this_entry['position_type']=page_info['position_type']
                 page_entries.append(this_entry)
 
-                #Keep track of entries so features ones don't get counted twice. 
+                #Keep track of entries so featured ones don't get counted twice. 
                 page_short_links.append(row_link)
 
-    #Go thru them all again, finding the main text and collecting that.
+    #TODO: Go thru them all again, finding the main text and collecting that.
     for this_entry in page_entries:
         pass
 
@@ -59,7 +58,7 @@ def compile_single_page(page_info):
 ####################################################################################
 #Build list of pages to download
 
-#The main page types and year prefixes for all teh archives
+#The main page types and year prefixes for all the archives
 position_types=['faculty','postdoc','grad','staff','temp','undergrad']
 position_years=['2015','2014','2013','2012','11','10','09','08','07','06','05','04','03','02','01','00']
 
@@ -75,6 +74,7 @@ for this_type in position_types:
 
 
 ##########################################################3
+#Main
 
 all_entries=[]
 for this_page in all_pages:
