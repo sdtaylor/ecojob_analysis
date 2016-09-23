@@ -60,7 +60,12 @@ def compile_single_page(page_info):
     for i,entry in enumerate(a_p_tags):
         if entry.has_attr('id') and '#'+entry['id'] in page_short_links:
             full_text=a_p_tags[i+1]
-            full_text.find_all('a')[-1].extract()
+
+            #Don't fail if there is nothing to extract. Happens on the very last entry of pages
+            try:
+                full_text.find_all('a')[-1].extract()
+            except IndexError:
+                pass
 
             short_link='#'+entry['id']
             entry_index=page_short_links.index(short_link)
