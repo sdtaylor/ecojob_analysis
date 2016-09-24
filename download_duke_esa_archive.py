@@ -97,13 +97,14 @@ for this_type in position_types:
 ##########################################################3
 #Main
 
-all_entries=[]
-for this_page in all_pages:
-    print(this_page)
-    page_entries=compile_single_page(this_page)
-    #None gets returned if there was a 404 error
-    if page_entries:
-        all_entries.extend(page_entries)
+if __name__ == __main__:
+    all_entries=[]
+    for this_page in all_pages:
+        print(this_page)
+        page_entries=compile_single_page(this_page)
+        #None gets returned if there was a 404 error
+        if page_entries:
+            all_entries.extend(page_entries)
 
-all_entries=pd.DataFrame(all_entries)
-all_entries.to_csv('duke_esa_archive.csv',index=False)
+    all_entries=pd.DataFrame(all_entries)
+    all_entries.to_csv('duke_esa_archive.csv',index=False)
