@@ -49,9 +49,8 @@ def compile_single_page(page_info):
                 #Keep track of entries so featured ones don't get counted twice. 
                 page_short_links.append(row_link)
 
-    #TODO: Go thru them all again, finding the main text and collecting that.
     #Collect the main text of the ads. 
-    #Get all a and p tags. When an a tag has an id value in the short link list,
+    #Get all a and p tags. When an a tag has an ID or NAME value in the short link list,
     #the next entry should be the main text for that short link.
     #Because of the way it's formated the *next* short link in the list is inside
     #the main body text, so remove that (it's always the last link).
@@ -59,6 +58,13 @@ def compile_single_page(page_info):
     a_p_tags=soup.find_all(['a','p'])
     for i,entry in enumerate(a_p_tags):
         if entry.has_attr('id') and '#'+entry['id'] in page_short_links:
+            short_link='#'+entry['id']
+        elif entry.has_attr('name') and '#'+entry['name'] in page_short_links:
+            short_link='#'+entry['name']
+        else:
+            short_link=None
+
+        if short_link:
             full_text=a_p_tags[i+1]
 
             #Don't fail if there is nothing to extract. Happens on the very last entry of pages
@@ -67,7 +73,6 @@ def compile_single_page(page_info):
             except IndexError:
                 pass
 
-            short_link='#'+entry['id']
             entry_index=page_short_links.index(short_link)
 
             page_entries[entry_index]['full_text']=full_text.text
@@ -97,7 +102,7 @@ for this_type in position_types:
 ##########################################################3
 #Main
 
-if __name__ == __main__:
+if __name__ == "__main__":
     all_entries=[]
     for this_page in all_pages:
         print(this_page)
