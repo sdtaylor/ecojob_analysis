@@ -75,7 +75,7 @@ def compile_single_page(page_info):
 
             entry_index=page_short_links.index(short_link)
 
-            page_entries[entry_index]['full_text']=full_text.text
+            page_entries[entry_index]['full_text']=''.join(full_text.text.splitlines())
             page_entries[entry_index]['text_short_link']=short_link
 
 
