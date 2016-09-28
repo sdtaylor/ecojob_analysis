@@ -1,17 +1,25 @@
 import urllib.request as urllib
 from bs4 import BeautifulSoup
 import pandas as pd
-import random
-from time import sleep
+import re
 import sqlalchemy
 
 
 def compile_single_page(page_info):
     #Account for 404 errors
     try:
-        soup=BeautifulSoup(urllib.urlopen(page_info['url']),'lxml')
+        html=urllib.urlopen(page_info['url']).read()
+        html=str(html)
     except:
         return None
+
+    #Remove bad/annoying html with regex searches
+    #The last 3 are one off issues that I don't want to make a general regex for
+    bad_html_searches=['<http:\/\/.*?>', '<mailto:.*?>', '<at>', '<\w*?.?\w*?@\w*?\.\w*?>', '<msmcdole&#064;wisc.edu>', '<www.kbs.msu.edu>', '<www.eiu.edu/~bioscigr>']
+    for search_string in bad_html_searches:
+        html = re.sub(search_string, '', html)
+
+    soup=BeautifulSoup(html,'lxml')
 
     #Postdoc and faculty pages have title in the 1st column, location
     #in the 2nd. All other pages are flipped
