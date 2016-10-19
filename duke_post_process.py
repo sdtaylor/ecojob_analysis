@@ -1,4 +1,6 @@
 import pandas as pd
+from random import randint
+from time import sleep
 
 ###################################
 #Turn MM/DD/YY into YYYY-MM-DD
@@ -48,6 +50,9 @@ for entry in data_raw:
     del entry['text_short_link']
 
     data_cleaned.append(entry)
+    
+    #Random delay per openstreetmap usage policy http://wiki.openstreetmap.org/wiki/Nominatim_usage_policy
+    sleep(randint(2,3))
 
 data_cleaned = pd.DataFrame(data_cleaned)
 data_cleaned.to_csv('duke_esa_archive_cleaned.csv', index=False)
